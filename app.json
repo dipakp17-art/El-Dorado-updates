@@ -1,0 +1,8 @@
+{
+  "versionCode": 16,
+  "versionName": "1.15",
+  "apk": "https://raw.githubusercontent.com/dipakp17-art/El-Dorado-updates/main/El-Dorado-16.apk",
+  "sha256": "c1a5f1c8de99659c2f121833f0c732aec08ab9f9db28c368b9f78f16990020e5",
+  "size": 22408911,
+  "notes": "Fix: admin no longer sends join requests to itself"
+}
