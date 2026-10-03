@@ -1,0 +1,14 @@
+{
+  "versionCode": 97,
+  "versionName": "1.96",
+  "apk": "https://raw.githubusercontent.com/dipakp17-art/El-Dorado-updates/main/El-Dorado-97.apk",
+  "sha256": "f5c0993fbafb003e818564a2625cac7a0f98589a4fc5a79e3ef1b6b3a2b3cacd",
+  "size": 24894959,
+  "notes": "Private",
+  "rolloutAt": 1791014981,
+  "hold": false,
+  "testers": [
+    "b7edab290f8d",
+    "0ed0a02bf684"
+  ]
+}

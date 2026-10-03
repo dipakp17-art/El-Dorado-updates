@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat on El Dorado</title>
+<style>
+  :root { --bg:#0e1116; --card:#171c24; --text:#f2f4f8; --muted:#9aa3b2; --accent:#e3b341; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px;
+         background:radial-gradient(circle at 30% 0%, #2a2410, var(--bg) 60%); color:var(--text);
+         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .card { width:100%; max-width:380px; background:var(--card); border-radius:26px; padding:28px 22px; text-align:center;
+          box-shadow:0 10px 40px rgba(0,0,0,.4); }
+  .logo { width:84px; height:84px; margin:0 auto 14px; border-radius:24px; background:linear-gradient(135deg,#f5d36b,#b8860b);
+          display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:700; color:#1b1405; }
+  h1 { font-size:22px; margin:6px 0 4px; }
+  p { color:var(--muted); font-size:15px; line-height:1.45; margin:6px 0 18px; }
+  .id { font-family:ui-monospace,monospace; font-size:17px; background:rgba(255,255,255,.06); border-radius:14px; padding:10px; margin-bottom:18px; }
+  a.btn { display:block; text-decoration:none; font-weight:600; font-size:16px; border-radius:26px; padding:14px; margin:10px 0; }
+  .primary { background:var(--accent); color:#1b1405; }
+  .ghost { border:1.5px solid var(--accent); color:var(--accent); }
+  small { color:var(--muted); display:block; margin-top:14px; line-height:1.4; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">E</div>
+  <h1 id="title">Chat on El Dorado</h1>
+  <p id="sub">Private chat with end-to-end encryption.</p>
+  <div class="id" id="id" hidden></div>
+  <a class="btn primary" id="open" href="#">Open in El Dorado</a>
+  <a class="btn ghost" id="get" href="./">Download El Dorado</a>
+  <small>Already have the app? Tap <b>Open in El Dorado</b>. New here? Download it, install it, then come back and tap this link again.</small>
+</div>
+<script>
+  var raw = decodeURIComponent((location.hash || "").slice(1));
+  var id = raw.split(".")[0].replace(/[^0-9a-fA-F]/g, "").slice(0, 12).toLowerCase();
+  var name = raw.indexOf(".") >= 0 ? raw.slice(raw.indexOf(".") + 1).slice(0, 40) : "";
+  var key = (raw.split(".")[0].split("~")[1] || "").replace(/[^0-9a-fA-F]/g, "").slice(0, 64).toLowerCase();
+  if (id.length === 12) {
+    document.getElementById("title").textContent = (name || "Someone") + " invites you";
+    document.getElementById("sub").textContent = "to chat privately on El Dorado.";
+    var box = document.getElementById("id");
+    box.hidden = false;
+    box.textContent = "ID " + id.match(/.{4}/g).join("-");
+    var fallback = encodeURIComponent(location.href.replace(/add\.html.*$/, ""));
+    document.getElementById("open").href = "intent://add/" + id + "?n=" + encodeURIComponent(name) + (key.length >= 16 ? "&k=" + key : "") +
+      "#Intent;scheme=eldorado;package=com.dipak.eldorado;S.browser_fallback_url=" + fallback + ";end";
+  } else {
+    document.getElementById("open").style.display = "none";
+  }
+</script>
+</body>
+</html>
