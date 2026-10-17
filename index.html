@@ -25,7 +25,7 @@
   <div class="logo">E</div>
   <h1>El Dorado</h1>
   <p>Private chat, voice and calls. End-to-end encrypted. Free.</p>
-  <a class="btn" id="dl" href="app.json">Download for Android</a>
+  <a class="btn" id="dl" href="#" aria-disabled="true">Checking download…</a>
   <div id="ver"></div>
   <ol>
     <li>Tap <b>Download</b> and open the file.</li>
@@ -34,10 +34,33 @@
   </ol>
 </div>
 <script>
-  fetch("app.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (a) {
-    document.getElementById("dl").href = a.apk.replace("https://raw.githubusercontent.com/dipakp17-art/El-Dorado-updates/main/", "");
-    document.getElementById("ver").textContent = "Version " + a.versionName + " · " + Math.round(a.size / 1048576) + " MB";
-  }).catch(function () {});
+  var download = document.getElementById("dl");
+  download.addEventListener("click", function (event) {
+    if (download.getAttribute("aria-disabled") === "true") event.preventDefault();
+  });
+  fetch("app.json", { cache: "no-store" }).then(function (response) {
+    if (!response.ok) throw new Error("Update information unavailable");
+    return response.json();
+  }).then(function (release) {
+    var prefix = "https://raw.githubusercontent.com/dipakp17-art/El-Dorado-updates/main/";
+    if (typeof release.apk !== "string" ||
+        !release.apk.startsWith(prefix) ||
+        !/^El-Dorado-[0-9]+\\.apk$/.test(release.apk.slice(prefix.length)) ||
+        !Number.isSafeInteger(release.versionCode) ||
+        release.apk !== prefix + "El-Dorado-" + release.versionCode + ".apk" ||
+        typeof release.versionName !== "string" ||
+        !Number.isFinite(release.size) || release.size <= 0) {
+      throw new Error("Invalid update information");
+    }
+    download.href = release.apk;
+    download.textContent = "Download for Android";
+    download.setAttribute("aria-disabled", "false");
+    document.getElementById("ver").textContent =
+      "Version " + release.versionName + " · " + Math.round(release.size / 1048576) + " MB";
+  }).catch(function () {
+    download.textContent = "Download temporarily unavailable";
+    document.getElementById("ver").textContent = "Please try again later.";
+  });
 </script>
 </body>
 </html>
