@@ -34,10 +34,18 @@
   <small>Already have the app? Tap <b>Open in El Dorado</b>. New here? Download it, install it, then come back and tap this link again.</small>
 </div>
 <script>
-  var raw = decodeURIComponent((location.hash || "").slice(1));
-  var id = raw.split(".")[0].replace(/[^0-9a-fA-F]/g, "").slice(0, 12).toLowerCase();
-  var name = raw.indexOf(".") >= 0 ? raw.slice(raw.indexOf(".") + 1).slice(0, 40) : "";
-  var key = (raw.split(".")[0].split("~")[1] || "").replace(/[^0-9a-fA-F]/g, "").slice(0, 64).toLowerCase();
+  // Invitation format: #<12-hex-id>[~<hex-key>][.<display-name>]
+  // Split the fields before sanitizing; otherwise key digits can become part of the ID.
+  var raw = (location.hash || "").slice(1);
+  try { raw = decodeURIComponent(raw); } catch (e) { raw = ""; }
+  var dot = raw.indexOf(".");
+  var identity = dot >= 0 ? raw.slice(0, dot) : raw;
+  var tilde = identity.indexOf("~");
+  var idPart = tilde >= 0 ? identity.slice(0, tilde) : identity;
+  var keyPart = tilde >= 0 ? identity.slice(tilde + 1) : "";
+  var id = /^[0-9a-fA-F]{12}$/.test(idPart) ? idPart.toLowerCase() : "";
+  var name = dot >= 0 ? raw.slice(dot + 1, dot + 41) : "";
+  var key = /^[0-9a-fA-F]{16,64}$/.test(keyPart) ? keyPart.toLowerCase() : "";
   if (id.length === 12) {
     document.getElementById("title").textContent = (name || "Someone") + " invites you";
     document.getElementById("sub").textContent = "to chat privately on El Dorado.";
