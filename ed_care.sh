@@ -97,7 +97,7 @@ follow_restart() {
   [ -n "$LINE" ] || return
   IFS='|' read -r V C W T SIG <<< "$LINE"
   LAST=$(cat "$D/cmd_last" 2>/dev/null || echo 0); now=$(date +%s)
-  [[ "$T" =~ ^[0-9]+$ ]] && [ "$T" -gt "$LAST" ] && [ $(( now - T )) -lt 3600 ] || return
+  [[ "$T" =~ ^[0-9]+$ ]] && [ "$T" -gt "$LAST" ] && [ "$T" -le "$now" ] && [ $(( now - T )) -lt 3600 ] || return
   printf '%s' "cmd1|restart|$WHO|$T" > "$D/msg"
   printf '%s' "$SIG" | base64 -d > "$D/sig" 2>/dev/null
   if ! openssl dgst -sha256 -verify "$PEM" -signature "$D/sig" "$D/msg" 2>/dev/null | grep -q "Verified OK"; then
@@ -115,9 +115,11 @@ post_status() { note "st1|$WHO|$(days_now)|$(free_gb)|$(date +%s)"; date +%s > "
 # 1. this phone: chat server and tunnel program running?
 self_repair() {
   if ! local_ok; then
-    sleep 20; local_ok && return          # maybe just restarting
-    log "the chat server wasn't answering — starting it again"
-    if restart_server; then alert "$WHO" fixed-server; else alert "$WHO" server-broken; fi
+    sleep 20
+    if ! local_ok; then
+      log "the chat server wasn't answering — starting it again"
+      if restart_server; then alert "$WHO" fixed-server; else alert "$WHO" server-broken; fi
+    fi
   fi
   if ! pgrep -f "eldorado/tunnel.sh" >/dev/null; then
     log "the tunnel program had stopped — starting it again"
@@ -129,7 +131,7 @@ self_repair() {
 # 2. the other server: answering from the internet?
 watch_other() {
   local board url code miss state
-  board=$(curl -s -m 30 "https://ntfy.sh/$OTHER_BOARD/raw?poll=1&since=12h") || return     # no internet here: can't judge
+  board=$(curl -fsS -m 30 "https://ntfy.sh/$OTHER_BOARD/raw?poll=1&since=12h") || return     # no internet here: can't judge
   url=$(printf '%s\n' "$board" | grep -o '^https://[a-z0-9-]*\.trycloudflare\.com' | tail -n 1)
   code=000; [ -n "$url" ] && code=$(curl -s -m 20 -o /dev/null -w '%{http_code}' "$url/v1/health")
   miss=$(cat "$D/other_miss" 2>/dev/null || echo 0); state=$(cat "$D/other_state" 2>/dev/null || echo up)
