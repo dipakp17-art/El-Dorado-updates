@@ -25,14 +25,14 @@ class RepositoryTests(unittest.TestCase):
         data = json.loads((ROOT / "app.json").read_text(encoding="utf-8"))
         self.assertIsInstance(data["versionCode"], int)
         self.assertGreater(data["versionCode"], 0)
-        self.assertRegex(data["versionName"], r"^\d+\\.\d+(?:\\.\d+)?$")
+        self.assertRegex(data["versionName"], r"^\d+\.\d+(?:\.\d+)?$")
         self.assertGreater(data["size"], 0)
         self.assertRegex(data["sha256"], r"^[0-9a-fA-F]{64}$")
         url = urlparse(data["apk"])
         self.assertEqual(url.scheme, "https")
         self.assertEqual(url.netloc, "raw.githubusercontent.com")
         self.assertTrue(url.path.startswith("/dipakp17-art/El-Dorado-updates/main/"))
-        self.assertRegex(url.path, r"/El-Dorado-\d+\\.apk$")
+        self.assertRegex(url.path, r"/El-Dorado-\d+\.apk$")
         self.assertTrue(url.path.endswith(f"/El-Dorado-{data['versionCode']}.apk"))
 
     def test_download_page_elements(self):
