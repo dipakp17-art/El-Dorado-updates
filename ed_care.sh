@@ -146,12 +146,15 @@ watch_other() {
 
 # 3. the admin's signed setting
 follow_setting() {
-  local LINE V DAYS T SIG LAST
-  LINE=$(curl -s -m 30 "https://ntfy.sh/$TOPIC/raw?poll=1&since=24h" | grep '^care1|' | tail -n 1)
+  local LINE V DAYS T SIG LAST NOW
+  LINE=$(curl -fsS -m 30 "https://ntfy.sh/$TOPIC/raw?poll=1&since=24h" | grep '^care1|' | tail -n 1)
   [ -n "$LINE" ] || return
   IFS='|' read -r V DAYS T SIG <<< "$LINE"
-  LAST=$(cat "$D/last" 2>/dev/null || echo 0)
-  [[ "$DAYS" =~ ^[0-9]+$ ]] && [[ "$T" =~ ^[0-9]+$ ]] && [ "$T" -gt "$LAST" ] || return
+  LAST=$(cat "$D/last" 2>/dev/null || echo 0); NOW=$(date +%s)
+  # Accept only fresh settings, allowing up to 5 minutes of clock skew.
+  [[ "$DAYS" =~ ^[0-9]+$ ]] && [[ "$T" =~ ^[0-9]+$ ]] &&
+    [ "$T" -gt "$LAST" ] && [ "$T" -le $((NOW + 300)) ] &&
+    [ "$T" -ge $((NOW - 86400)) ] || return
   printf '%s' "care1|$DAYS|$T" > "$D/msg"
   printf '%s' "$SIG" | base64 -d > "$D/sig" 2>/dev/null
   if ! openssl dgst -sha256 -verify "$PEM" -signature "$D/sig" "$D/msg" 2>/dev/null | grep -q "Verified OK"; then
