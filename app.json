@@ -1,0 +1,14 @@
+{
+  "versionCode": 105,
+  "versionName": "1.104",
+  "apk": "https://raw.githubusercontent.com/dipakp17-art/El-Dorado-updates/main/El-Dorado-105.apk",
+  "sha256": "f4429adbe12dddab0a76c127d111e6730ddb4d6cfcfca2d8bc1546d75b16714d",
+  "size": 52178356,
+  "notes": "Improve admin and settings panels; fix approval replies, chat effects and deletion layout",
+  "rolloutAt": 1793467434,
+  "hold": false,
+  "testers": [
+    "b7edab290f8d",
+    "0ed0a02bf684"
+  ]
+}
